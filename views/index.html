@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width,initial-scale=1.0,user-scalable=no,maximum-scale=1,minimum-scale=1"
+		/>
+		<title>上传文件</title>
+		<!-- CSS only -->
+		<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css"
+		/>
+		<link rel="stylesheet" href="/css/index/upload.css" />
+	</head>
+	<body>
+		{{if deli&&message }}
+		<div
+			class="alert tipsAlert {{ deli === true ? 'alert-success':'alert-danger'  }} text-center"
+			id="alert"
+		>
+			{{message}}
+		</div>
+		{{/if}}
+		<div class="container">
+			<h4 class="mt-5 title">
+				<a href="/" class="active">首页</a>
+				<small><a href="/upload">上传</a></small>
+			</h4>
+			<div class="boxWidth container p-5 rounded mt-5">
+				{{if !tiles||tiles.length<=0}}
+				<h3 class="text-center text-secondary">暂未有上传文件</h3>
+				{{else}} {{each tiles}} {{if $value}}
+				<div class="alert alert-secondary d-flex justify-content-between">
+					{{$value.filename}} {{if $value.tile_status === 2}}
+					<span class="badge hz badge-warning">制作中</span>
+					{{else if $value.tile_status === -1}}
+					<span class="badge hz badge-danger">制作失败</span>
+					{{else}}
+					<div class="btn-group">
+						<a href="{{$value.url}}" target="_blank" class="btn btn-info btn-sm">查看</a>
+						<a href="/remove/{{$value.tileId}}" class="btn btn-warning btn-sm"
+							>删除</a
+						>
+					</div>
+					{{/if}}
+				</div>
+				{{/if}} {{/each}} {{/if}}
+			</div>
+		</div>
+	</body>
+</html>
+<!-- JS, Popper.js, and jQuery -->
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<script src="/js/public/axios.min.js"></script>
+<script>
+	{{if deli&&message }}
+		setTimeout(() => {
+			$('#alert').hide();
+		}, 3000);
+	{{/if}}
+</script>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width,initial-scale=1.0,user-scalable=no,maximum-scale=1,minimum-scale=1"
+		/>
+		<title>上传文件</title>
+		<!-- CSS only -->
+		<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css"
+		/>
+		<link rel="stylesheet" href="/css/index/upload.css" />
+	</head>
+	<body>
+		<div class="container">
+			<h4 class="mt-5 title">
+				<small><a href="/">首页</a></small>
+				<a href="/upload" class="active">上传</a>
+			</h4>
+			<div class="box boxWidth container p-5 shadow-sm rounded mt-5">
+				<h3 class="text-center text-secondary" id="filename">上传文件</h3>
+				<form action="" enctype="multipart/form-data" id="uploadForm">
+					<div class="row justify-content-center">
+						<div class="custom-file mt-5 col-6 col-md-3">
+							<input
+								type="file"
+								class="custom-file-input"
+								id="validatedCustomFile"
+								required
+							/>
+							<label
+								class="custom-file-label text-center"
+								for="validatedCustomFile"
+								>选择文件</label
+							>
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="container boxWidth mt-3">
+				<div class="row" id="upload-container"></div>
+			</div>
+		</div>
+	</body>
+</html>
+<!-- JS, Popper.js, and jQuery -->
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<script src="/js/public/axios.min.js"></script>
+<script>
+	const fileNameEl = $('#filename');
+	const uploadContainer = $('#upload-container');
+	$('#validatedCustomFile').on('change', function (e) {
+		const file = this.files[0];
+		const data = {
+			name: file.name,
+			idName: file.name.slice(0, file.name.lastIndexOf('.')),
+		};
+		if ($(`#${data.idName}`).get(0)) {
+			alert('已经在上传队列中');
+			$(this).val('');
+			return;
+		}
+		const item = UploadItem(data);
+		uploadContainer.append($(item));
+		let formData = new FormData($('#uploadForm').get(0));
+		formData.append('file', file);
+		axios
+			.post('/upload/tile', formData, {
+				onUploadProgress(e) {
+					const { loaded, total } = e;
+					const percent = Math.round((loaded / total) * 100);
+					$(`#${data.idName} .pro`).css('width', `${percent}%`);
+				},
+			})
+			.then(res => {
+				$(this).val('');
+				$(`#${data.idName} .tip`).addClass('active');
+				console.log(res.data);
+			})
+			.catch(err => {
+				console.log(err);
+			});
+	});
+
+	/**
+	 * 生成上传项目模板
+	 * @returns {string} UploadTempalte
+	 */
+	function UploadItem(data) {
+		let UploadTempalte = `
+		<div class="alert fade show upload" role="alert" id="${data.idName}">
+					<div class="bg"></div>
+					<div class="pro shadow-sm"></div>
+					<div class="upload-item font-weight-bold">${data.name}</div>
+					<span class="badge tip hz badge-success">上传成功</span>
+				</div>
+		`;
+		return UploadTempalte;
+	}
+</script>

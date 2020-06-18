@@ -1,0 +1,25 @@
+{
+	"name": "upload",
+	"version": "1.0.0",
+	"description": "",
+	"main": "app.js",
+	"scripts": {
+		"dev": "set NODE_ENV=development&& nodemon app.js",
+		"serve": "set NODE_ENV=production&&node app.js",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"art-template": "^4.13.2",
+		"body-parser": "^1.19.0",
+		"cookie-parser": "^1.4.5",
+		"express": "^5.0.0-alpha.8",
+		"express-art-template": "^1.0.1",
+		"jquery": "^3.5.1",
+		"multer": "^1.4.2",
+		"nodemon": "^2.0.4",
+		"require-directory": "^2.1.1"
+	}
+}

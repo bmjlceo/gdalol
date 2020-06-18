@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>{{title}}</title>
+		<meta http-equiv="imagetoolbar" content="no" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+		/>
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<link rel="stylesheet" href="/css/openlayers/openlayers.css" />
+		<link href="/css/public/ol.css" rel="stylesheet" />
+		<!-- CSS only -->
+		<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css"
+		/>
+		<link rel="stylesheet" href="/css/public/iconfont.css" />
+		<!-- 挂载当前切片索引 -->
+		<script>
+			window.tileId = '{{title}}';
+		</script>
+	</head>
+	<body>
+		<!-- Modal -->
+		<div
+			class="modal fade"
+			id="staticBackdrop"
+			data-backdrop="static"
+			data-keyboard="false"
+			tabindex="-1"
+			role="dialog"
+			aria-labelledby="staticBackdropLabel"
+			aria-hidden="true"
+		>
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="staticBackdropLabel">添加标注</h5>
+						<button type="button" class="close" id="close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<div class="form-group">
+							<label for="recipient-name" class="col-form-label">标题:</label>
+							<input
+								type="text"
+								placeholder="请输入20字以内标注标题"
+								class="form-control"
+								id="recipient-title"
+							/>
+						</div>
+						<div class="form-group">
+							<label for="message-text" class="col-form-label">内容:</label>
+							<textarea
+								class="form-control"
+								placeholder="请输入50字以内标注内容"
+								id="message-content"
+							></textarea>
+						</div>
+					</div>
+					<div class="modal-footer justify-content-center">
+						<button type="button" class="btn btn-secondary" id="cancel">
+							取消
+						</button>
+						<button type="button" class="btn btn-primary" id="ok">
+							保存
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- 截图框 -->
+		<button
+			type="button"
+			id="capturePanelBtn"
+			class="btn btn-light capturePanelBtn"
+		>
+			截图面板
+		</button>
+		<div class="captureBox rounded shadow" id="capturePanel">
+			<p class="title text-center">
+				<i id="pack" title="收起" class="iconfont icon-Back"></i>截图
+			</p>
+			<div class="capture-content">
+				<ul
+					id="captureContentWrapper"
+					class="captureContentWrapper {{captureArr&&captureArr.length>0 ? '': 'empty'}}"
+				>
+					{{if captureArr&&captureArr.length>0}} {{each captureArr}}
+					<li class="capture-item">
+						<img src="{{$value}}" width="150" height="150" alt="" />
+					</li>
+					{{/each}} {{else}}
+					<li id="NoneCapture">没有截图</li>
+					{{/if}}
+				</ul>
+			</div>
+		</div>
+
+		<!-- Map -->
+		<div id="map">
+			<div id="screenshot" class="ol-control ol-shot ol-pen">
+				<button class="">
+					<i class="icon-circle iconfont"></i>
+				</button>
+			</div>
+			<div id="edit" class="ol-control ol-pen">
+				<button class="">
+					<i class="icon-pen iconfont"></i>
+				</button>
+			</div>
+			<div class="tools" id="tools">
+				<div class="ol-control" id="typeGroup">
+					<button data-type="Drag" title="拖动" class="active" id="Drag">
+						<i data-type="Drag" class="iconfont icon-yidong"></i>
+					</button>
+					<button data-type="Circle" title="圆形" id="Circle">
+						<i data-type="Circle" class="iconfont icon-tx-yuanxing"></i>
+					</button>
+					<button data-type="Box" title="矩形" id="Box">
+						<i data-type="Box" class="iconfont icon-juxing"></i>
+					</button>
+					<button data-type="Polygon" title="多边形" id="Polygon">
+						<i
+							data-type="Polygon"
+							class="iconfont icon-icon-dianjiduobianxing"
+						></i>
+					</button>
+					<button data-type="Flag" title="旗子" id="Flag">
+						<i data-type="Flag" class="iconfont icon-qizi"></i>
+					</button>
+					<button data-type="LineString" title="自由笔" id="LineString">
+						<i data-type="LineString" class="iconfont icon-bi"></i>
+					</button>
+					<ul id="colorGroup">
+						<li
+							title="黑色"
+							class="color-item active"
+							style="background: black;"
+							data-color="black"
+							id="black"
+						></li>
+						<li
+							title="白色"
+							class="color-item"
+							style="background: #fff;"
+							data-color="#fff"
+							id="white"
+						></li>
+						<li
+							title="红色"
+							class="color-item"
+							style="background: red;"
+							data-color="red"
+							id="red"
+						></li>
+						<li
+							title="蓝色"
+							class="color-item"
+							style="background: #00f;"
+							data-color="#00f"
+							id="blue"
+						></li>
+						<li
+							title="绿色"
+							class="color-item"
+							style="background: #0f0;"
+							data-color="#0f0"
+							id="green"
+						></li>
+						<li
+							title="粉色"
+							class="color-item"
+							style="background: #e4007f;"
+							data-color="#e4007f"
+							id="pink"
+						></li>
+						<li
+							title="黄色"
+							class="color-item"
+							style="background: #fff100;"
+							data-color="#fff100"
+							id="yellow"
+						></li>
+					</ul>
+				</div>
+				<button title="关闭" class="close" id="shut">
+					<i class="iconfont icon-icon_close"></i>
+				</button>
+			</div>
+		</div>
+		<div class="mask" id="mask" style="display: none;">
+			<div class="content shadow rounded">
+				<p class="tip-text" id="tip">正在截图</p>
+				<!-- 进度条 -->
+				<div class="progress" id="progress">
+					<div class="progress-bar" id="progressbar"></div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
+<!-- JS, Popper.js, and jQuery -->
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+
+<script src="/js/public/ol.js"></script>
+<script src="/js/openlayers/featureData.js"></script>
+<script src="/js/openlayers/ol_Interaction.js"></script>
+<script>
+	let mapExtent = ol.proj.transformExtent(
+		[
+			{{tileInfo.minx}},
+			{{tileInfo.miny}},
+			{{tileInfo.maxx}},
+			{{tileInfo.maxy}}
+		],
+		'EPSG:4326',
+		'EPSG:3857'
+	);
+	let mapMinZoom = 0;
+	let mapMaxZoom = {{tileInfo.zoom}};
+	let resolutions = [];
+	let projection = new ol.proj.get('EPSG:3857'); // 获得对应的投影坐标系
+	let projectionExtent = projection.getExtent(); // 投影坐标系的范围
+
+	let resolutions3857 = [
+		156543.03392804097,
+		78271.51696402048,
+		39135.75848201024,
+		19567.87924100512,
+		9783.93962050256,
+		4891.96981025128,
+		2445.98490512564,
+		1222.99245256282,
+		611.49622628141,
+		305.748113140705,
+		152.8740565703525,
+		76.43702828517625,
+		38.21851414258813,
+		19.109257071294063,
+		9.554628535647032,
+		4.777314267823516,
+		2.388657133911758,
+		1.194328566955879,
+		0.5971642834779395,
+	];
+
+	let tileGrid = new ol.tilegrid.TileGrid({
+		origin: ol.extent.getBottomLeft(projectionExtent),
+		extent: projectionExtent,
+		resolutions: resolutions3857,
+	});
+
+	const layer = new ol.layer.Tile({
+		source: new ol.source.TileDebug({
+			projection: projection,
+			tileGrid: tileGrid,
+			wrapX: false,
+		}),
+	});
+
+	const image = new ol.layer.Tile({
+		extent: projectionExtent,
+		source: new ol.source.TileImage({
+			tileGrid: tileGrid,
+			tileUrlFunction: function (coordinate) {
+				const [z, x, y] = coordinate;
+				return z + '/' + x + '/' + y + '.png';
+			},
+		}),
+	});
+
+	let map = new ol.Map({
+		target: 'map',
+		layers: [image],
+		view: new ol.View({
+			center: ol.proj.fromLonLat([0, 0]),
+			zoom: 0,
+			minZoom: mapMinZoom,
+			maxZoom: mapMaxZoom,
+		}),
+		interactions: ol.interaction.defaults().extend([new app.Drag()]),
+	});
+	$('#map').css('backgroundColor', '#000');
+</script>
+<script src="/js/openlayers/olo.js"></script>
+<script>
+	olManager.init(map);
+	// 增加区域滑动控件
+	olManager.addZoomslider();
+	// 增加tooltip并实习更新
+	olManager.addTiptoolAndListen();
+	// 鹰眼事件
+	olManager.addOverView();
+	// 用户交互动作
+	olManager.addInteractionEve();
+	// 工具栏事件
+	olManager.addToolBar();
+</script>
+<script src="/js/public/html2canvas.min.js"></script>
+<script src="/js/public/canvasot.min.js"></script>
+<script src="/js/public/axios.min.js"></script>
+<script src="/js/openlayers/olayers.js"></script>
